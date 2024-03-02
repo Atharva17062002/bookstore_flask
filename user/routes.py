@@ -24,7 +24,7 @@ api = Api(app=app,
 @api.route('/user')
 class UserAPI(Resource):
     """Resource for user registration and verification."""
-    @api.expect(api.model('register', {'username': fields.String(), 'email': fields.String(), 'password': fields.String(), 'location': fields.String(),'super_key': fields.String(nullable = True)}),api.response(201, UserSchema))
+    @api.expect(api.model('register', {'username': fields.String(), 'email': fields.String(), 'password': fields.String(), 'location': fields.String(),'super_key': fields.String(nullable = True,default = None)}),api.response(201, UserSchema))
     @api_handler(body=UserSchema)
     @limiter.limit("5 per minute")
     def post(self):
@@ -41,8 +41,11 @@ class UserAPI(Resource):
         """
 
         data = request.get_json()
+        super_key = data.pop("super_key", None)
+        print(data)
         user = User(**data)
-        
+        if (super_key != None):
+            user.validate_super_key(super_key)
         db.session.add(user)
         db.session.commit()
         # token = jwt.encode({"user_id": user.id}, settings.jwt_key, algorithm=settings.jwt_algo)
@@ -138,3 +141,17 @@ class LoginAPI(Resource):
         if user and user.verify_password(data['password']):
             return {"message": "Login successful", "token": user.generate_token(aud="login", exp=60), "status": 200}, 200
         return {"message": "Invalid credentials", "status": 401}, 401
+
+@api.route('/authUser')
+class VerifyAPI(Resource):
+
+    @api_handler()
+    def get(self):
+        token = request.args.get('token')
+        if not token:
+            return {'message': 'Token not found', 'status': 401}, 401
+        payload = JWT.to_decode(token, 'login')
+        user = User.query.filter_by(id=payload['user_id']).first()
+        if not user:
+            return {'message': 'user not found','status': 401}, 401
+        return {"message": "User authenticated successfully", "data": user.to_json}, 200

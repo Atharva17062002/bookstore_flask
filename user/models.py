@@ -9,7 +9,7 @@ from settings import settings
 from app.utils import JWT
 
 
-db_url = settings.database_uri
+db_url = settings.user_database_uri
 app = create_app(db_url)
 
 db = SQLAlchemy()
@@ -37,6 +37,13 @@ class User(BaseModel):
         self.password = pbkdf2_sha256.hash(password)
         self.location = location
 
+    def validate_super_key(self,super_key):
+        if super_key == settings.super_key:
+            self.is_superuser = True
+        else:
+            # self.is_superuser = False
+            raise ValueError("Wrong super key")
+
     def verify_password(self, raw_password):
         return pbkdf2_sha256.verify(raw_password, self.password)
 
@@ -50,5 +57,6 @@ class User(BaseModel):
             "id": self.id,
             "username": self.username,
             "email": self.email,
-            "location": self.location
+            "location": self.location,
+            "is_superuser": self.is_superuser,
     }

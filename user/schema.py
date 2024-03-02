@@ -10,12 +10,6 @@ class UserSchema(BaseModel):
     location: Optional[str] = None
     
 
-    def validate_super_key(self,super_key):
-        if super_key == settings.super_key:
-            return True
-        else:
-            raise ValidationError("Wrong super key")
-
     @field_validator('email')
     def email_must_be_valid(cls, email):
         assert '@' in email, 'Invalid email'
