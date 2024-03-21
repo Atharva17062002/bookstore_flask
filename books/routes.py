@@ -90,6 +90,7 @@ class BooksAPI(Resource):
         #     return {"message": "You are not allowed to perform this operation", "status": 403}, 403
 
 
+# @api.doc(params={'book_id':'The book id'})
 @app.route('/book/<int:book_id>', methods=['GET'])
 @auth_user
 def get_book(book_id, *args, **kwargs):
@@ -99,7 +100,7 @@ def get_book(book_id, *args, **kwargs):
     return {'message': "Book data fetched", 'status': 200, 'data': book.to_json}, 200
         
 
-@api.route('/updateQuantity')
+@app.route('/updateQuantity')
 
 class UpdateQuantity(Resource):
 

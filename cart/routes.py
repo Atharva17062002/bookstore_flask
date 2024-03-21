@@ -32,7 +32,7 @@ api = Api(app=app,
 @api.route('/update')
 class UpdateCart(Resource):
         method_decorators = [auth_user]
-
+        @api.expect(api.model('update', {"book_id":fields.Integer,"quantity":fields.Integer}),api.response(201, CartSchema))
         @api_handler()
         def post(self , *args , **kwargs):
                 data = request.get_json()
@@ -51,6 +51,7 @@ class UpdateCart(Resource):
                 cart_item = cart.items
                 return {"message": "Cart Items fetched", "status": 201, "data": {"cart":cart,"items": cart_item}  }, 201
 
+        @api.doc(params = {"id":"Give cart id"},responses = {201 : "Success"})
         def delete(self,*args, **kwargs):
                 cart = Cart.query.filter_by(id=request.args["id"], is_ordered=False).first()
                 print(cart)
@@ -63,6 +64,7 @@ class UpdateCart(Resource):
 class OrderCart(Resource):
         method_decorators = [auth_user]
 
+        @api.expect(api.model('order', {"id":fields.Integer}),api.response(201, CartSchema))
         @api_handler()
         def post(self , *args , **kwargs):
                 cart = Cart.query.filter_by(id=request.json["id"], user_id=request.json["user_id"], is_ordered=False).first()
@@ -72,7 +74,8 @@ class OrderCart(Resource):
                         return {"message": "Order placed", "status": 201, "data":{} }, 201
                 else:
                         return {"message": "Order failed", "status": 500, "data":{} }, 500
-        
+
+        @api.expect(api.model('order', {"id":fields.Integer}),api.response(201, CartSchema))        
         @api_handler()
         def put(self,*args, **kwargs):
                 cart = Cart.query.filter_by(id=request.json["id"],user_id =request.json["user_id"], is_ordered=True).first()
