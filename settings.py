@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     jwt_algo: str
     super_key: str
     book_database_uri: str
+    cart_database_uri: str
 
     
 settings = Settings()

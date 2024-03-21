@@ -79,17 +79,46 @@ class BooksAPI(Resource):
     @api_handler()
     @limiter.limit("5 per minute")
     def put(self,*args, **kwargs):
-        if g.user["is_superuser"] == True:
-            data = request.get_json()
-            book = Book.query.filter_by(id=data['id'], user_id=data['user_id']).first()
-            [setattr(book, key, value) for key, value in data.items()]
-            db.session.commit()
-            db.session.close()
-            return {"message": "Book updated successfully", "status": 200,'data' : book.to_json()}, 200
-        else:
-            return {"message": "You are not allowed to perform this operation", "status": 403}, 403
+        # if g.user["is_superuser"] == True:
+        data = request.get_json()
+        book = Book.query.filter_by(id=data['id'], user_id=data['user_id']).first()
+        [setattr(book, key, value) for key, value in data.items()]
+        db.session.commit()
+        db.session.close()
+        return {"message": "Book updated successfully", "status": 200,'data' : book.to_json()}, 200
+        # else:
+        #     return {"message": "You are not allowed to perform this operation", "status": 403}, 403
 
 
-    
+@app.route('/book/<int:book_id>', methods=['GET'])
+@auth_user
+def get_book(book_id, *args, **kwargs):
+    if not book_id:
+        return {'message': "Book id required", 'status': 400}, 400
+    book = Book.query.get(book_id)
+    return {'message': "Book data fetched", 'status': 200, 'data': book.to_json}, 200
         
 
+@api.route('/updateQuantity')
+
+class UpdateQuantity(Resource):
+
+    method_decorators = [auth_user]
+
+    @api_handler()
+    def put(self,*args, **kwargs):
+        data = request.get_json()
+        for book in data['book_details']:
+            b = Book.query.filter_by(id=book['book_id']).first()
+            b.quantity -= book['quantity']
+        db.session.commit()
+        return {"message": "Quantity updated successfully", "status": 200}, 200
+        
+    @api_handler()
+    def post(self,*args, **kwargs):
+        data = request.get_json()
+        for book in data['book_details']:
+            b = Book.query.filter_by(id=book['book_id']).first()
+            b.quantity += book['quantity']
+        db.session.commit()
+        return {"message": "Quantity updated successfully", "status": 200}, 200

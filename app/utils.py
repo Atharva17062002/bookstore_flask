@@ -5,7 +5,6 @@ from settings import settings
 import jwt
 import json
 from . import mail
-# import redis
 import psycopg2
 import sqlalchemy
 import re
@@ -27,7 +26,6 @@ def api_handler(body = None, query = None):
                 return {"message": "Data already exist","status": 400,"data":{}},400
             except psycopg2.errors.UniqueViolation as e:
                 logger.error(e)
-                print(str(e))
                 return {"message": "Data already exist","status": 400,"data":{}},400
             except ValidationError as e:
                 logger.error(e)

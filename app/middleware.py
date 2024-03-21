@@ -11,7 +11,7 @@ def auth_user(func):
         if not token:
             return {"message": "Token not found","status":404,"data":{}}, 404
         try:
-            response = http.get(f"http://127.0.0.1:4345/api/v1/authUser", params={"token": token})
+            response = http.get(f"http://127.0.0.1:5001/api/v1/authUser", params={"token": token})
             if response.status_code >= 400:
                 return {"message": response.json()['message'], "status":401}, 401 
             user_data = response.json()['data']
