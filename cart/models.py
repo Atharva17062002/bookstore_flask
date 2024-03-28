@@ -6,7 +6,7 @@ class BaseModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False,)
 
 
-class Cart(BaseModel):
+class   Cart(BaseModel):
         __tablename__ = "cart"
         total_price = db.Column(db.Float, nullable=False,default=0)
         total_quantity = db.Column(db.Integer, nullable = False, default=0)
@@ -16,6 +16,7 @@ class Cart(BaseModel):
         user_id = db.Column(db.Integer,nullable = False)
         items = db.relationship('CartItems', back_populates='cart')
 
+        @property
         def to_json(self):
                 return {
                     'total_price': self.total_price,
@@ -34,12 +35,12 @@ class CartItems(BaseModel):
         cart_id = db.Column(db.Integer,db.ForeignKey('cart.id', ondelete="CASCADE"))
         cart = db.relationship('Cart',back_populates="items")
 
-
+        @property
         def to_json(self):
                 return {
+                    'id': self.id,
                     'price': self.price,
                     'quantity': self.quantity,
                     'book_id': self.book_id,
                     'cart_id': self.cart_id,
-                    'cart': str(self.cart)
                 }

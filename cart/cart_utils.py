@@ -48,7 +48,7 @@ def delete_cart(c_id):
     return True
 
 def validate_quantity(book_data,quantity):
-    if book_data['quantity'] < quantity:
+    if book_data['quantity'] < int(quantity):
         return False
     else:
         return True

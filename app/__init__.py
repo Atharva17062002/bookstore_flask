@@ -3,60 +3,6 @@ from flask_mail import Mail
 
 mail = Mail()
 
-class Development:
-    """
-    Development environment configuration.
-
-    Description:
-    Configuration settings for the development environment.
-
-    Parameters:
-    None
-
-    Return:
-    None
-    """
-    DEBUG = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-
-class Testing:
-    """
-    Testing environment configuration.
-
-    Description:
-    Configuration settings for the testing environment.
-
-    Parameters:
-    None
-
-    Return:
-    None
-    """
-    TESTING = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-
-class Production:
-    """
-    Production environment configuration.
-
-    Description:
-    Configuration settings for the production environment.
-
-    Parameters:
-    None
-
-    Return:
-    None
-    """
-    DEBUG = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-
-config_mode = {
-    'debug': Development,
-    'testing': Testing,
-    'prod': Production
-}
-
 def create_app(db_url, mode='debug'):
     """
     Create and configure the Flask app.
@@ -70,7 +16,17 @@ def create_app(db_url, mode='debug'):
     Return:
     app (Flask): The configured Flask application instance.
     """
+
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-    app.config.from_object(config_mode[mode])
+
+    if mode == 'debug':
+        app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+        app.config['DEBUG'] = True  
+
+    if mode == 'test':
+        app.config['SQLALCHEMY_DATABASE_URI'] ="sqlite:///test.sqlite3"
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+        app.config['TESTING'] = True
+
     return app

@@ -40,7 +40,7 @@ class UpdateCart(Resource):
                 get_book = get_book_from_inventory(data["book_id"],request.headers["Authorization"])
                 if(validate_quantity(get_book['data'],data["quantity"])):
                         update_cart(cart, get_book['data'],data)
-                        return {"message": "Cart updated", "status": 201, "data": cart.to_json() }, 201
+                        return {"message": "Cart updated", "status": 201, "data": cart.to_json }, 201
                 return {"message": "Quantity is invalid", "status": 400}, 400
 
         @api_handler()
@@ -48,8 +48,8 @@ class UpdateCart(Resource):
                 cart = Cart.query.filter_by(user_id = kwargs["user_id"]).first()
                 if not cart:
                         return {"message": "Cart not found", "status": 404}, 404
-                cart_item = cart.items
-                return {"message": "Cart Items fetched", "status": 201, "data": {"cart":cart,"items": cart_item}  }, 201
+                cart_item = [x.to_json for x in cart.items]
+                return {"message": "Cart Items fetched", "status": 200, "data": {"cart":cart.to_json,"items": cart_item}  }, 200
 
         @api.doc(params = {"id":"Give cart id"},responses = {201 : "Success"})
         def delete(self,*args, **kwargs):

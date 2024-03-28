@@ -45,11 +45,11 @@ class BooksAPI(Resource):
             db.session.commit()
             db.session.refresh(book)
             # db.session.close()
-            return {"message": "Book added successfully", "status": 200,'data':book.to_json}, 200
+            return {"message": "Book added successfully", "status": 200,'data':book.to_json}, 201
         return {"message": "You are not allowed to perform this operation", "status": 403}, 403
 
     @api_handler()
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def get(self,*args, **kwargs):
         books = Book.query.all()
         books = [book.to_json for book in books]
@@ -59,7 +59,7 @@ class BooksAPI(Resource):
             return {"message": "No books found", "status":404}, 404
     
     @api_handler()
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def delete(self,*args, **kwargs):
         if g.user["is_superuser"] == True:
             book_id = request.args.get('id')
@@ -70,22 +70,22 @@ class BooksAPI(Resource):
                 db.session.delete(book)
                 db.session.commit()
                 db.session.close()
-                return {"message": "Book deleted successfully", "status": 200,'data' : book.to_json()}, 200
+                return {"message": "Book deleted successfully", "status": 200,'data' : book.to_json}, 200
             else:
                 return {"message": "No books found", "status":404}, 404
         else:
             return {"message": "You are not allowed to perform this operation", "status": 403}, 403
     
     @api_handler()
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def put(self,*args, **kwargs):
         # if g.user["is_superuser"] == True:
         data = request.get_json()
         book = Book.query.filter_by(id=data['id'], user_id=data['user_id']).first()
         [setattr(book, key, value) for key, value in data.items()]
         db.session.commit()
-        db.session.close()
-        return {"message": "Book updated successfully", "status": 200,'data' : book.to_json()}, 200
+        # db.session.close()
+        return {"message": "Book updated successfully", "status": 200,'data' : book.to_json}, 200
         # else:
         #     return {"message": "You are not allowed to perform this operation", "status": 403}, 403
 

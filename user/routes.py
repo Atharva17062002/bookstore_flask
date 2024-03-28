@@ -26,7 +26,7 @@ class UserAPI(Resource):
     """Resource for user registration and verification."""
     @api.expect(api.model('register', {'username': fields.String(), 'email': fields.String(), 'password': fields.String(), 'location': fields.String(),'super_key': fields.String(nullable = True,default = None)}),api.response(201, UserSchema))
     @api_handler(body=UserSchema)
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def post(self):
         """Register a new user.
         
@@ -68,7 +68,7 @@ class UserAPI(Resource):
 
     @api.expect(api.model('delete user', {'username': fields.String(), 'password': fields.String()}))
     @api_handler()
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def delete(self):
         """Delete a user.
         
@@ -92,7 +92,7 @@ class UserAPI(Resource):
 
     @api.doc(params={'token': "Give token"})
     @api_handler()
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def get(self):
         """Verify user.
         
@@ -123,7 +123,7 @@ class LoginAPI(Resource):
     
     @api.expect(api.model('login', {'username': fields.String(), 'password': fields.String()}))
     @api_handler()
-    @limiter.limit("5 per minute")
+    @limiter.limit("50 per minute")
     def post(self):
         """Authenticate user.
         
